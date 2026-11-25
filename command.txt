@@ -1,0 +1,145 @@
+conda activate lerobot
+sudo chmod 666 /dev/ttyACM*
+
+lerobot-teleoperate \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM1 \
+  --robot.id=my_awesome_follower_arm \
+  --teleop.type=so101_leader \
+  --teleop.port=/dev/ttyACM0 \
+  --teleop.id=my_awesome_leader_arm
+
+lerobot-rollout   --strategy.type=base   --policy.path=/home/stu2/air-hockey-models/air-hockey-amd-act-80000   --robot.type=so101_follower   --robot.port=/dev/ttyACM1   --robot.id=my_awesome_follower_arm   --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}"   --task="YOUR_TASK_NAME"   --duration=120   --device=cuda   --display_data=true
+
+lerobot-record   --robot.type=so101_follower   --robot.port=/dev/ttyACM1   --robot.id=my_awesome_follower_arm   --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}"   --teleop.type=so101_leader   --teleop.port=/dev/ttyACM0   --teleop.id=my_awesome_leader_arm   --display_data=true   --dataset.repo_id=seeedstudio123/air_hockey_test   --dataset.num_episodes=2   --dataset.single_task="Grab the black cube"   --dataset.push_to_hub=false   --dataset.episode_time_s=30   --dataset.reset_time_s=15
+
+lerobot-record \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM1 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --teleop.type=so101_leader \
+  --teleop.port=/dev/ttyACM0 \
+  --teleop.id=my_awesome_leader_arm \
+  --display_data=false \
+  --dataset.repo_id=seeedstudio123/air_hockey_test \
+  --dataset.root=/home/stu2/phsicalAI20261103/air-hockey-datasets/air_hockey_test4 \
+  --dataset.num_episodes=10 \
+  --dataset.single_task="Play air hockey" \
+  --dataset.push_to_hub=false \
+  --dataset.episode_time_s=59 \
+  --dataset.reset_time_s=1 \
+  --resume=true
+
+python - <<'PY'
+import json
+from pathlib import Path
+
+p = Path.home() / "phsicalAI20261103/air-hockey-datasets/air_hockey_test2/meta/info.json"
+
+if not p.exists():
+    print("找不到 info.json，請確認 Dataset 路徑")
+else:
+    info = json.loads(p.read_text())
+    for key in ["codebase_version", "total_episodes", "total_frames", "fps", "video_path"]:
+        print(f"{key}: {info.get(key)}")
+PY
+
+# act-resume-step40000
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/stu2/air-hockey-models/act-resume-step40000/040000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+# air-hockey-amd-act-80000 made by 作者
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/stu2/air-hockey-models/air-hockey-amd-act-80000 \
+  --policy.device=cuda \
+  --task="Play air hockey"
+
+# act-final-step20000
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/stu2/air-hockey-models/act-final-step20000/020000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+# act-finetune-500-step5000
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/stu2/air-hockey-models/act-finetune-500-step5000/005000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+# act_supercom
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 2, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/stu2/air-hockey-models/act_final/005000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+
+python - <<'PY'
+import json
+
+path = "config.json"
+
+with open(path, "r") as f:
+    config = json.load(f)
+
+config.pop("dtype", None)
+config.pop("optimizer_fused", None)
+
+with open(path, "w") as f:
+    json.dump(config, f, indent=4)
+
+print("Removed unsupported fields.")
+PY
+
+
+# act final
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/cscc/physicalAI/act_final/005000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+# act scratch
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/cscc/physicalAI/act_scratch/005000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"
+  
+# pi0.5
+lerobot-rollout \
+  --robot.type=so101_follower \
+  --robot.port=/dev/ttyACM0 \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{ front: {type: opencv, index_or_path: 0, width: 1280, height: 720, fps: 30, fourcc: 'MJPG'}}" \
+  --policy.path=/home/cscc/physicalAI/005000/pretrained_model \
+  --policy.device=cuda \
+  --task="Play air hockey"

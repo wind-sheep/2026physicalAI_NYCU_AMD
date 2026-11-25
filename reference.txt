@@ -1,0 +1,11 @@
+install lerobot 
+https://wiki.seeedstudio.com/lerobot_so100m_new/#install-lerobot
+
+air-hockey
+https://github.com/uchidama/AMD_Robotics_Hackathon_2025_AirHockey_pi05_ROCm
+
+our dataset
+https://huggingface.co/datasets/WendyNYCU/air_hockey_test4
+
+our model
+https://drive.google.com/drive/folders/1FeAVtXM4tiSgLS9xrqrot4jDu00Ft1vX?usp=drive_link
